@@ -30,7 +30,7 @@ void setup() {
   Serial.println("Starting up the system...");
 
   //Attach pins to servos
-  for(int=0; i < NumServos; i++){
+  for(int i = 0; i < NumServos; i++){
     servo[i].attach(i);
   }
 
