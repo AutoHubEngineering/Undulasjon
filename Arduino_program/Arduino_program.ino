@@ -17,7 +17,6 @@ int servoAngleCalc(int servoNumber){
   float servoRad = CurrentRad + (servoNumber * PhaseShift);     //Calculate the radian position to the servo
   double armPos = sin(servoRad);                                //Calculates the arm position. How far the arm are from the equalibrium line. 
   int servoAngle = map(armPos, -1, 1, -Amplitude, Amplitude);   //Mapping from the sin value to the rigth degree for the servo
-  //servo[servoNumber].write(servoAngle);                         //Writes to the angle to the servo
   return servoAngle;
 }
 
@@ -31,7 +30,7 @@ void setup() {
 
   //Attach pins to servos
   for(int i = 0; i < NumServos; i++){
-    servo[i].attach(i);
+    servo[i].attach(servoPin[i]);
   }
 
 
