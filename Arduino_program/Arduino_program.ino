@@ -1,4 +1,6 @@
 #include <Servo.h>
+#include <Wire.h>
+#include <Adafruit_INA219.h>
 
 #define PI 3.14159265358979323
 #define NumServos 6           //The number of servos used
@@ -9,7 +11,7 @@
 
 float CurrentRad;             //The radian posistion of the first servo
 
-
+Adafruit_INA219 ina219;
 Servo servo[NumServos];
 int servoPin[NumServos] = {2, 3, 4, 5, 6, 7};       //The pin to the servos on the "Arduino Mega 2560". The first servo is servo[0].
 
@@ -37,11 +39,28 @@ void setup() {
 }
 
 void loop() {
+  float shuntvoltage = 0;
+  float busvoltage = 0;
+  float current_mA = 0;
+  float loadvoltage = 0;
+  float power_mW = 0;
+
   CurrentRad = 2 * PI * millis() * Hz * 0.001;      //Sinus wave generator
 
   for(int i = 0; i < NumServos; i++){
     servo[i].write(servoAngleCalc(i));
   }
+
+  shuntvoltage = ina219.getShuntVoltage_mV();
+  busvoltage = ina219.getBusVoltage_V();
+  current_mA = ina219.getCurrent_mA();
+  power_mW = ina219.getPower_mW();
+  loadvoltage = busvoltage + (shuntvoltage / 1000);
+
+  Serial.print("Load Voltage:  "); Serial.print(loadvoltage); Serial.println(" V");
+  Serial.print("Current:       "); Serial.print(current_mA); Serial.println(" mA");
+  Serial.print("Power:         "); Serial.print(power_mW); Serial.println(" mW");
+  Serial.println("");
 
   delay(10);
 }
