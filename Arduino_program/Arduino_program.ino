@@ -18,7 +18,12 @@ int servoPin[NumServos] = {2, 3, 4, 5, 6, 7};       //The pin to the servos on t
 int servoAngleCalc(int servoNumber){
   float servoRad = CurrentRad + (servoNumber * PhaseShift);     //Calculate the radian position to the servo
   double armPos = sin(servoRad);                                //Calculates the arm position. How far the arm are from the equalibrium line. 
-  int servoAngle = map(armPos, -1, 1, -Amplitude, Amplitude);   //Mapping from the sin value to the rigth degree for the servo
+  //Serial.println("ArmPos: " + String(armPos));
+  int armPosInt = armPos * 10000;
+  //Serial.println("ArmPosInt: " + String(armPosInt));
+  int servoAngle = map(armPosInt, -10000, 10000, -Amplitude, Amplitude);   //Mapping from the sin value to the rigth degree for the servo
+  //int servoAngle = (int)((armPos + 1) * (Amplitude / 2.0)); 
+  //Serial.println("Servo angle: " + String(servoAngle));
   return servoAngle;
 }
 
@@ -48,7 +53,8 @@ void loop() {
   CurrentRad = 2 * PI * millis() * Hz * 0.001;      //Sinus wave generator
 
   for(int i = 0; i < NumServos; i++){
-    servo[i].write(servoAngleCalc(i));
+    servo[i].write(servoAngleCalc(i)+90);
+    //Serial.println("write to a servo");
   }
 
   shuntvoltage = ina219.getShuntVoltage_mV();
