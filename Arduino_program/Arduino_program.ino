@@ -6,10 +6,11 @@
 #define NumServos 6           //The number of servos used
 //Tweaking constants
 #define Hz 0.5                //The frequency of the wave 
-#define PhaseShift PI / 2     //Shifting the phase with the distance between each arm/servo
+#define PhaseShift PI / 6     //Shifting the phase with the distance between each arm/servo
 #define Amplitude 40          //The ampitude in degrees
 
 float CurrentRad;             //The radian posistion of the first servo
+unsigned int LoopCounter = 0;
 
 Adafruit_INA219 ina219;
 Servo servo[NumServos];
@@ -35,6 +36,11 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Starting up the system...");
 
+  if (! ina219.begin()) {
+    Serial.println("Failed to find INA219 chip");
+    while (1) { delay(10); }}
+  ina219.setCalibration_32V_1A();
+
   //Attach pins to servos
   for(int i = 0; i < NumServos; i++){
     servo[i].attach(servoPin[i]);
@@ -49,6 +55,11 @@ void loop() {
   float current_mA = 0;
   float loadvoltage = 0;
   float power_mW = 0;
+  
+
+  LoopCounter++;
+  //Serial.println(LoopCounter);
+
 
   CurrentRad = 2 * PI * millis() * Hz * 0.001;      //Sinus wave generator
 
@@ -57,6 +68,7 @@ void loop() {
     //Serial.println("write to a servo");
   }
 
+  if(LoopCounter >= 100){
   shuntvoltage = ina219.getShuntVoltage_mV();
   busvoltage = ina219.getBusVoltage_V();
   current_mA = ina219.getCurrent_mA();
@@ -64,9 +76,13 @@ void loop() {
   loadvoltage = busvoltage + (shuntvoltage / 1000);
 
   Serial.print("Load Voltage:  "); Serial.print(loadvoltage); Serial.println(" V");
+  //Serial.print("Bus Voltage:  "); Serial.print(busvoltage); Serial.println(" V");
   Serial.print("Current:       "); Serial.print(current_mA); Serial.println(" mA");
   Serial.print("Power:         "); Serial.print(power_mW); Serial.println(" mW");
   Serial.println("");
+  Serial.flush();
+  LoopCounter = 0;
+  }
 
   delay(10);
 }
